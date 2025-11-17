@@ -1,13 +1,5 @@
-import os
-
-from dotenv import load_dotenv
-
-load_dotenv()
-
-
 def main():
     print("Hello from ai-langchain!")
-    print(os.getenv("OPENAI_API_KEY"))
 
 
 if __name__ == "__main__":
