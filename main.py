@@ -1,48 +1,26 @@
-from typing import List
-
 from dotenv import load_dotenv
-from pydantic import BaseModel, Field
 
 load_dotenv()
-from langchain.agents import create_agent
-from langchain.tools import tool
-from langchain_core.messages import HumanMessage
+
+from langchain_classic import hub
+from langchain_classic.agents import AgentExecutor
+from langchain_classic.agents.react.agent import create_react_agent
 from langchain_openai import ChatOpenAI
-from tavily import TavilyClient
+from langchain_tavily import TavilySearch
 
-tavily = TavilyClient()
-class Source(BaseModel):
-    """Schema for a source used by the agent"""
-    url: str = Field(description="The url of the source")
+tools = [TavilySearch()]
+llm = ChatOpenAI(model="gpt-4", temperature=0)
+react_prompt = hub.pull("hwchase17/react")
+agent = create_react_agent(llm, tools, prompt=react_prompt)
+chain = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
-class AgentResponse(BaseModel):
-    """Schema for agent response with answer and sources"""
-    answer: str = Field(description="The answer to the query")
-    sources: List[Source] = Field(default_factory=list, description="The sources used to answer the question")
-
-@tool
-def search(query: str) -> str:
-    """
-    Tool that searches over internet
-    Args:
-        query: The query to search for
-    Returns:
-        The search results
-    """
-    print(f"Searching for {query}")
-    return tavily.search(query=query)
-
-llm = ChatOpenAI(model="gpt-4o-mini")
-tools = [search]
-agent = create_agent(
-    model=llm,
-    tools=tools,
-    response_format=AgentResponse,
-)
 
 def main():
-    print("Hello from ai-langchain!")
-    result = agent.invoke({"messages": [HumanMessage(content="What is the weather in Tokyo?")]})
+    result = chain.invoke(
+        {
+            "input": "Search for 3 job postings for an AI engineer using langchain in the Bay Area on Linkedin and list their details."
+        }
+    )
     print(result)
 
 
