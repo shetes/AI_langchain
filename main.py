@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
     {context}
 
-    QuestionL {question}
+    Question: {question}
 
     Helpful Answer:
     """

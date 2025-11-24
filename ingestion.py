@@ -18,8 +18,12 @@ if __name__ == "__main__":
     texts = text_splitter.split_documents(document)
     print(f"created {len(texts)} chunks")
 
-    embeddings = OpenAIEmbeddings(openai_api_type=os.environ.get("OPENAI_API_KEY"))
+    embeddings = OpenAIEmbeddings()
 
-    print("ingesting ...")
-    PineconeVectorStore.from_documents(texts, embeddings, index_name=os.environ.get("INDEX_NAME"))
+    print("Ingesting to Pinecone ...")
+    PineconeVectorStore.from_documents(
+        documents=texts, 
+        embedding=embeddings, 
+        index_name=os.environ.get("INDEX_NAME")
+    )
     print("Finished!")
